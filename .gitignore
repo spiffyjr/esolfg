@@ -1,0 +1,6 @@
+/.idea
+/.vagrant
+/www.pid
+/vendor
+/public/*
+!/public/index.php

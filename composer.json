@@ -1,0 +1,34 @@
+{
+    "name": "spiffy/spiffy-app",
+    "repositories": [
+        { "type": "vcs", "url": "git@github.com:spiffyjr/spiffy-dispatch.git" },
+        { "type": "vcs", "url": "git@github.com:spiffyjr/spiffy-event.git" },
+        { "type": "vcs", "url": "git@github.com:spiffyjr/spiffy-inject.git" },
+        { "type": "vcs", "url": "git@github.com:spiffyjr/spiffy-mvc.git" },
+        { "type": "vcs", "url": "git@github.com:spiffyjr/spiffy-package.git" },
+        { "type": "vcs", "url": "git@github.com:spiffyjr/spiffy-route.git" },
+        { "type": "vcs", "url": "git@github.com:spiffyjr/spiffy-view.git" }
+    ],
+    "require": {
+        "php": ">=5.4",
+
+        "spiffy/spiffy-dispatch": "~1.0-dev",
+        "spiffy/spiffy-event": "~1.0-dev",
+        "spiffy/spiffy-inject": "~1.0-dev",
+        "spiffy/spiffy-mvc": "~1.0-dev",
+        "spiffy/spiffy-package": "~1.0-dev",
+        "spiffy/spiffy-route": "~1.0-dev",
+        "spiffy/spiffy-view": "~1.0-dev",
+
+        "twig/twig": "~1.15"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0",
+        "squizlabs/php_codesniffer": "~1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Application\\": "app/package/application/src"
+        }
+    }
+}

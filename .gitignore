@@ -5,3 +5,4 @@
 /public/*
 !/public/index.php
 composer.lock
+app/config/env.config.php

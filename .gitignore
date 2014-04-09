@@ -6,3 +6,4 @@
 !/public/index.php
 composer.lock
 app/config/env.config.php
+app/config/override/*.config.php

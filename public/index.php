@@ -10,10 +10,6 @@ if (!file_exists('vendor/autoload.php')) {
 
 include 'vendor/autoload.php';
 
-ini_set('display_errors', true);
-ini_set('display_startup_errors', true);
-ini_set('error_reporting', E_ALL);
-
 $mvcFactory = new DefaultApplicationFactory(include 'app/config/app.config.php');
 $mvc = $mvcFactory->createService();
 $mvc->run();

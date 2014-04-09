@@ -1,5 +1,12 @@
 {
     "name": "spiffy/spiffy-application",
+    "authors": [
+        {
+            "name": "Kyle Spraggs",
+            "email": "theman@spiffyjr.me"
+        }
+    ],
+    "description": "Spiffy\\Application is an application built using SpiffyFramework.",
     "require": {
         "php": ">=5.4",
 

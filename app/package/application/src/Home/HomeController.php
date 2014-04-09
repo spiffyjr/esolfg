@@ -6,5 +6,8 @@ use Spiffy\Mvc\AbstractController;
 
 class HomeController extends AbstractController
 {
-
+    public function index()
+    {
+        return [];
+    }
 }

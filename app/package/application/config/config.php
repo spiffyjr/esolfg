@@ -9,12 +9,18 @@ return [
         ],
 
         'routes' => [
-            ['home', '/', ['defaults' => ['controller' => 'home', 'action' => 'index']]],
+            'home' => ['/', 'home']
         ],
 
         'view_manager' => [
             'twig' => [
-                'loader_paths' => [__DIR__ . '/../view']
+                'loader_paths' => [
+                    'application' => __DIR__ . '/../view'
+                ],
+                'options' => [
+                    //'cache' => 'cache',
+                    'debug' => true
+                ]
             ]
         ]
     ],

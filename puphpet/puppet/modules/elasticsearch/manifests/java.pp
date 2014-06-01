@@ -30,17 +30,7 @@ class elasticsearch::java {
         $package = 'java-1.7.0-openjdk'
       }
       'Debian', 'Ubuntu': {
-        case $::lsbdistcodename {
-          'squeeze': {
-            $package = 'openjdk-6-jre-headless'
-          }
-          default: {
-            $package = 'openjdk-7-jre-headless'
-          }
-        }
-      }
-      'OpenSuSE': {
-        $package = 'java-1_6_0-openjdk'
+        $package = 'openjdk-7-jre-headless'
       }
       default: {
         fail("\"${module_name}\" provides no java package

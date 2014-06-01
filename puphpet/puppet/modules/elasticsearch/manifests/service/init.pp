@@ -76,27 +76,28 @@ define elasticsearch::service::init{
 
     # defaults file content. Either from a hash or file
     if ($elasticsearch::init_defaults_file != undef) {
+      $defaults_content = undef
+      $defaults_source  = $elasticsearch::init_defaults_file
+    } elsif ($elasticsearch::init_defaults != undef and is_hash($elasticsearch::init_defaults) ) {
+      $defaults_content = template("${module_name}/etc/sysconfig/defaults.erb")
+      $defaults_source  = undef
+    } else {
+      $defaults_content = undef
+      $defaults_source  = undef
+    }
+
+    # Check if we are going to manage the defaults file.
+    if ( $defaults_content != undef or $defaults_source != undef ) {
+
       file { "${elasticsearch::params::defaults_location}/${name}":
         ensure  => $elasticsearch::ensure,
-        source  => $elasticsearch::init_defaults_file,
+        source  => $defaults_source,
+        content => $defaults_content,
         owner   => 'root',
         group   => 'root',
         mode    => '0644',
         before  => Service[$name],
         notify  => $notify_service
-      }
-
-    } elsif ($elasticsearch::init_defaults != undef and is_hash($elasticsearch::init_defaults) ) {
-
-      $init_defaults_pre_hash = { 'ES_USER' => $elasticsearch::elasticsearch_user, 'ES_GROUP' => $elasticsearch::elasticsearch_group }
-      $init_defaults = merge($init_defaults_pre_hash, $elasticsearch::init_defaults)
-
-      augeas { "defaults_${name}":
-        incl     => "${elasticsearch::params::defaults_location}/${name}",
-        lens     => 'Shellvars.lns',
-        changes  => template("${module_name}/etc/sysconfig/defaults.erb"),
-        before   => Service[$name],
-        notify   => $notify_service
       }
 
     }

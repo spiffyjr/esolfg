@@ -2,85 +2,47 @@ require 'spec_helper'
 
 describe 'elasticsearch', :type => 'class' do
 
-  default_params = {
-    :config  => { 'node.name' => 'foo' }
-  }
-
-  [ 'RedHat', 'CentOS', 'Fedora', 'Scientific', 'Amazon', 'OracleLinux', 'SLC'  ].each do |distro|
+  [ 'RedHat', 'CentOS', 'Fedora', 'Scientific', 'Amazon', 'OracleLinux' ].each do |distro|
 
     context "on #{distro} OS" do
 
       let :facts do {
-        :operatingsystem => distro,
-        :kernel => 'Linux',
-        :osfamily => 'RedHat'
+        :operatingsystem => distro
       } end
-
-      let (:params) {
-        default_params
-      }
 
       context 'Main class' do
 
-				it { should compile.with_all_deps }
         # init.pp
-        it { should contain_anchor('elasticsearch::begin') }
-        it { should contain_anchor('elasticsearch::end').that_requires('Class[elasticsearch::service]') }
-        it { should contain_class('elasticsearch::params') }
-        it { should contain_class('elasticsearch::package').that_requires('Anchor[elasticsearch::begin]') }
-        it { should contain_class('elasticsearch::config').that_requires('Class[elasticsearch::package]') }
-        it { should contain_class('elasticsearch::service').that_requires('Class[elasticsearch::package]').that_requires('Class[elasticsearch::config]') }
-
-        # Base directories
-        it { should contain_file('/etc/elasticsearch') }
-        it { should contain_file('/etc/elasticsearch/elasticsearch.yml') }
-        it { should contain_exec('mkdir_templates_elasticsearch').with(:command => 'mkdir -p /etc/elasticsearch/templates_import', :creates => '/etc/elasticsearch/templates_import') }
-        it { should contain_file('/etc/elasticsearch/templates_import').with(:require => 'Exec[mkdir_templates_elasticsearch]') }
-				it { should contain_file('/usr/share/elasticsearch/plugins') }
+        it { should contain_class('elasticsearch::package') }
+        it { should contain_class('elasticsearch::config') }
+        it { should contain_class('elasticsearch::service') }
 
       end
 
       context 'package installation' do
-
+        
         context 'via repository' do
 
           context 'with default settings' do
-
-            it { should contain_package('elasticsearch').with(:ensure => 'present') }
-            it { should_not contain_package('my-elasticsearch').with(:ensure => 'present') }
+            
+           it { should contain_package('elasticsearch').with(:ensure => 'present') }
 
           end
 
           context 'with specified version' do
 
-            let (:params) {
-              default_params.merge({
-                :version => '1.0'
-              })
-            }
+            let :params do {
+              :version => '1.0'
+            } end
 
             it { should contain_package('elasticsearch').with(:ensure => '1.0') }
           end
 
-          context 'with specified package name' do
-
-            let (:params) {
-              default_params.merge({
-                :package_name => 'my-elasticsearch'
-              })
-            }
-
-            it { should contain_package('my-elasticsearch').with(:ensure => 'present') }
-            it { should_not contain_package('elasticsearch').with(:ensure => 'present') }
-          end
-
           context 'with auto upgrade enabled' do
 
-            let (:params) {
-              default_params.merge({
-                :autoupgrade => true
-              })
-            }
+            let :params do {
+              :autoupgrade => true
+            } end
 
             it { should contain_package('elasticsearch').with(:ensure => 'latest') }
           end
@@ -89,12 +51,10 @@ describe 'elasticsearch', :type => 'class' do
 
         context 'when setting package version and package_url' do
 
-          let (:params) {
-            default_params.merge({
-              :version     => '0.90.10',
-              :package_url => 'puppet:///path/to/some/elasticsearch-0.90.10.rpm'
-            })
-          }
+          let :params do {
+            :version     => '0.90.10',
+            :package_url => 'puppet:///path/to/some/elasticsearch-0.90.10.rpm'
+          } end
 
           it { expect { should raise_error(Puppet::Error) } }
 
@@ -104,70 +64,60 @@ describe 'elasticsearch', :type => 'class' do
 
           context 'using puppet:/// schema' do
 
-            let (:params) {
-              default_params.merge({
-                :package_url => 'puppet:///path/to/package.rpm'
-              })
-            }
+            let :params do {
+              :package_url => 'puppet:///path/to/package.rpm'
+            } end
 
-            it { should contain_file('/opt/elasticsearch/swdl/package.rpm').with(:source => 'puppet:///path/to/package.rpm', :backup => false) }
-            it { should contain_package('elasticsearch').with(:ensure => 'present', :source => '/opt/elasticsearch/swdl/package.rpm', :provider => 'rpm') }
+            it { should contain_file('/var/lib/elasticsearch/package.rpm').with(:source => 'puppet:///path/to/package.rpm', :backup => false) }
+            it { should contain_package('elasticsearch').with(:ensure => 'present', :source => '/var/lib/elasticsearch/package.rpm', :provider => 'rpm') }
           end
 
           context 'using http:// schema' do
 
-            let (:params) {
-              default_params.merge({
-                :package_url => 'http://www.domain.com/path/to/package.rpm'
-              })
-            }
+            let :params do {
+              :package_url => 'http://www.domain.com/path/to/package.rpm'
+            } end
 
-            it { should contain_exec('create_package_dir_elasticsearch').with(:command => 'mkdir -p /opt/elasticsearch/swdl') }
-            it { should contain_file('/opt/elasticsearch/swdl').with(:purge => false, :force => false, :require => "Exec[create_package_dir_elasticsearch]") }
-            it { should contain_exec('download_package_elasticsearch').with(:command => 'wget -O /opt/elasticsearch/swdl/package.rpm http://www.domain.com/path/to/package.rpm 2> /dev/null', :require => 'File[/opt/elasticsearch/swdl]') }
-            it { should contain_package('elasticsearch').with(:ensure => 'present', :source => '/opt/elasticsearch/swdl/package.rpm', :provider => 'rpm') }
+            it { should contain_exec('create_package_dir_elasticsearch').with(:command => 'mkdir -p /var/lib/elasticsearch') }
+            it { should contain_file('/var/lib/elasticsearch').with(:purge => false, :force => false, :require => "Exec[create_package_dir_elasticsearch]") }
+            it { should contain_exec('download_package_elasticsearch').with(:command => 'wget -O /var/lib/elasticsearch/package.rpm http://www.domain.com/path/to/package.rpm 2> /dev/null', :require => 'File[/var/lib/elasticsearch]') }
+            it { should contain_package('elasticsearch').with(:ensure => 'present', :source => '/var/lib/elasticsearch/package.rpm', :provider => 'rpm') }
           end
 
           context 'using https:// schema' do
 
-            let (:params) {
-              default_params.merge({
-                :package_url => 'https://www.domain.com/path/to/package.rpm'
-              })
-            }
+            let :params do {
+              :package_url => 'https://www.domain.com/path/to/package.rpm'
+            } end
 
-            it { should contain_exec('create_package_dir_elasticsearch').with(:command => 'mkdir -p /opt/elasticsearch/swdl') }
-            it { should contain_file('/opt/elasticsearch/swdl').with(:purge => false, :force => false, :require => 'Exec[create_package_dir_elasticsearch]') }
-            it { should contain_exec('download_package_elasticsearch').with(:command => 'wget -O /opt/elasticsearch/swdl/package.rpm https://www.domain.com/path/to/package.rpm 2> /dev/null', :require => 'File[/opt/elasticsearch/swdl]') }
-            it { should contain_package('elasticsearch').with(:ensure => 'present', :source => '/opt/elasticsearch/swdl/package.rpm', :provider => 'rpm') }
+            it { should contain_exec('create_package_dir_elasticsearch').with(:command => 'mkdir -p /var/lib/elasticsearch') }
+            it { should contain_file('/var/lib/elasticsearch').with(:purge => false, :force => false, :require => 'Exec[create_package_dir_elasticsearch]') }
+            it { should contain_exec('download_package_elasticsearch').with(:command => 'wget -O /var/lib/elasticsearch/package.rpm https://www.domain.com/path/to/package.rpm 2> /dev/null', :require => 'File[/var/lib/elasticsearch]') }
+            it { should contain_package('elasticsearch').with(:ensure => 'present', :source => '/var/lib/elasticsearch/package.rpm', :provider => 'rpm') }
           end
 
           context 'using ftp:// schema' do
 
-            let (:params) {
-              default_params.merge({
-                :package_url => 'ftp://www.domain.com/path/to/package.rpm'
-              })
-            }
+            let :params do {
+              :package_url => 'ftp://www.domain.com/path/to/package.rpm'
+            } end
 
-            it { should contain_exec('create_package_dir_elasticsearch').with(:command => 'mkdir -p /opt/elasticsearch/swdl') }
-            it { should contain_file('/opt/elasticsearch/swdl').with(:purge => false, :force => false, :require => 'Exec[create_package_dir_elasticsearch]') }
-            it { should contain_exec('download_package_elasticsearch').with(:command => 'wget -O /opt/elasticsearch/swdl/package.rpm ftp://www.domain.com/path/to/package.rpm 2> /dev/null', :require => 'File[/opt/elasticsearch/swdl]') }
-            it { should contain_package('elasticsearch').with(:ensure => 'present', :source => '/opt/elasticsearch/swdl/package.rpm', :provider => 'rpm') }
+            it { should contain_exec('create_package_dir_elasticsearch').with(:command => 'mkdir -p /var/lib/elasticsearch') }
+            it { should contain_file('/var/lib/elasticsearch').with(:purge => false, :force => false, :require => 'Exec[create_package_dir_elasticsearch]') }
+            it { should contain_exec('download_package_elasticsearch').with(:command => 'wget -O /var/lib/elasticsearch/package.rpm ftp://www.domain.com/path/to/package.rpm 2> /dev/null', :require => 'File[/var/lib/elasticsearch]') }
+            it { should contain_package('elasticsearch').with(:ensure => 'present', :source => '/var/lib/elasticsearch/package.rpm', :provider => 'rpm') }
           end
 
           context 'using file:// schema' do
 
-            let (:params) {
-              default_params.merge({
-                :package_url => 'file:/path/to/package.rpm'
-              })
-            }
+            let :params do {
+              :package_url => 'file:/path/to/package.rpm'
+            } end
 
-            it { should contain_exec('create_package_dir_elasticsearch').with(:command => 'mkdir -p /opt/elasticsearch/swdl') }
-            it { should contain_file('/opt/elasticsearch/swdl').with(:purge => false, :force => false, :require => 'Exec[create_package_dir_elasticsearch]') }
-            it { should contain_file('/opt/elasticsearch/swdl/package.rpm').with(:source => '/path/to/package.rpm', :backup => false) }
-            it { should contain_package('elasticsearch').with(:ensure => 'present', :source => '/opt/elasticsearch/swdl/package.rpm', :provider => 'rpm') }
+            it { should contain_exec('create_package_dir_elasticsearch').with(:command => 'mkdir -p /var/lib/elasticsearch') }
+            it { should contain_file('/var/lib/elasticsearch').with(:purge => false, :force => false, :require => 'Exec[create_package_dir_elasticsearch]') }
+            it { should contain_file('/var/lib/elasticsearch/package.rpm').with(:source => '/path/to/package.rpm', :backup => false) }
+            it { should contain_package('elasticsearch').with(:ensure => 'present', :source => '/var/lib/elasticsearch/package.rpm', :provider => 'rpm') }
           end
 
         end
@@ -178,8 +128,6 @@ describe 'elasticsearch', :type => 'class' do
 
         context 'with provider \'init\'' do
 
-          it { should contain_elasticsearch__service__init('elasticsearch') }
-
           context 'and default settings' do
 
             it { should contain_service('elasticsearch').with(:ensure => 'running') }
@@ -188,23 +136,19 @@ describe 'elasticsearch', :type => 'class' do
 
           context 'and set defaults via hash param' do
 
-            let (:params) {
-              default_params.merge({
-                :init_defaults => { 'ES_USER' => 'root', 'ES_GROUP' => 'root', 'ES_JAVA_OPTS' => '"-server -XX:+UseTLAB -XX:+CMSClassUnloadingEnabled"' }
-              })
-            }
+            let :params do {
+              :init_defaults => { 'SERVICE_USER' => 'root', 'SERVICE_GROUP' => 'root' }
+            } end
 
-            it { should contain_augeas('defaults_elasticsearch').with(:notify => 'Service[elasticsearch]', :incl  => '/etc/sysconfig/elasticsearch', :changes => "set ES_GROUP 'root'\nset ES_JAVA_OPTS '\"-server -XX:+UseTLAB -XX:+CMSClassUnloadingEnabled\"'\nset ES_USER 'root'\n") }
+            it { should contain_file('/etc/sysconfig/elasticsearch').with(:content => "### MANAGED BY PUPPET ###\n\nSERVICE_GROUP=root\nSERVICE_USER=root\n", :notify => 'Service[elasticsearch]') }
 
           end
 
           context 'and set defaults via file param' do
 
-            let (:params) {
-              default_params.merge({
-                :init_defaults_file => 'puppet:///path/to/elasticsearch.defaults'
-              })
-            }
+            let :params do {
+              :init_defaults_file => 'puppet:///path/to/elasticsearch.defaults'
+            } end
 
             it { should contain_file('/etc/sysconfig/elasticsearch').with(:source => 'puppet:///path/to/elasticsearch.defaults', :notify => 'Service[elasticsearch]') }
 
@@ -212,24 +156,20 @@ describe 'elasticsearch', :type => 'class' do
 
           context 'no service restart when defaults change' do
 
-            let (:params) {
-              default_params.merge({
-                :init_defaults     => { 'ES_USER' => 'root', 'ES_GROUP' => 'root', 'ES_JAVA_OPTS' => '"-server -XX:+UseTLAB -XX:+CMSClassUnloadingEnabled"' },
-                :restart_on_change => false
-              })
-            }
+            let :params do {
+              :init_defaults     => { 'SERVICE_USER' => 'root', 'SERVICE_GROUP' => 'root' },
+              :restart_on_change => false
+            } end
 
-            it { should contain_augeas('defaults_elasticsearch').with(:incl => '/etc/sysconfig/elasticsearch', :changes => "set ES_GROUP 'root'\nset ES_JAVA_OPTS '\"-server -XX:+UseTLAB -XX:+CMSClassUnloadingEnabled\"'\nset ES_USER 'root'\n").without_notify }
+            it { should contain_file('/etc/sysconfig/elasticsearch').with(:content => "### MANAGED BY PUPPET ###\n\nSERVICE_GROUP=root\nSERVICE_USER=root\n").without_notify }
 
           end
 
           context 'and set init file via template' do
 
-            let (:params) {
-              default_params.merge({
-                :init_template => "elasticsearch/etc/init.d/elasticsearch.RedHat.erb"
-              })
-            }
+            let :params do {
+              :init_template => "elasticsearch/etc/init.d/elasticsearch.RedHat.erb"
+            } end
 
             it { should contain_file('/etc/init.d/elasticsearch').with(:notify => 'Service[elasticsearch]') }
 
@@ -237,12 +177,10 @@ describe 'elasticsearch', :type => 'class' do
 
           context 'No service restart when restart_on_change is false' do
 
-            let (:params) {
-              default_params.merge({
-                :init_template     => "elasticsearch/etc/init.d/elasticsearch.RedHat.erb",
-                :restart_on_change => false
-              })
-            }
+            let :params do {
+              :init_template     => "elasticsearch/etc/init.d/elasticsearch.RedHat.erb",
+              :restart_on_change => false
+            } end
 
             it { should contain_file('/etc/init.d/elasticsearch').without_notify }
 
@@ -250,11 +188,9 @@ describe 'elasticsearch', :type => 'class' do
 
           context 'when its unmanaged do nothing with it' do
 
-            let (:params) {
-              default_params.merge({
-                :status => 'unmanaged'
-              })
-            }
+            let :params do {
+              :status => 'unmanaged'
+            } end
 
             it { should contain_service('elasticsearch').with(:ensure => nil, :enable => false) }
 
@@ -266,29 +202,13 @@ describe 'elasticsearch', :type => 'class' do
 
       context 'when setting the module to absent' do
 
-         let (:params) {
-           default_params.merge({
-             :ensure => 'absent'
-           })
-         }
+         let :params do {
+           :ensure => 'absent'
+         } end
 
          it { should contain_file('/etc/elasticsearch').with(:ensure => 'absent', :force => true, :recurse => true) }
          it { should contain_package('elasticsearch').with(:ensure => 'purged') }
          it { should contain_service('elasticsearch').with(:ensure => 'stopped', :enable => false) }
-
-      end
-
-      context 'When managing the repository' do
-
-        let (:params) {
-          default_params.merge({
-            :manage_repo  => true,
-            :repo_version => '1.0'
-          })
-        }
-
-        it { should contain_class('elasticsearch::repo').that_requires('Anchor[elasticsearch::begin]') }
-        it { should contain_yumrepo('elasticsearch').with(:baseurl => 'http://packages.elasticsearch.org/elasticsearch/1.0/centos', :gpgkey => 'http://packages.elasticsearch.org/GPG-KEY-elasticsearch', :enabled => 1) }
 
       end
 

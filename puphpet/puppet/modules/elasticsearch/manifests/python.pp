@@ -3,6 +3,7 @@
 # there are many python bindings for elasticsearch. This provides all
 # the ones we know about http://www.elasticsearch.org/guide/clients/
 #
+#
 # === Parameters
 #
 # [*ensure*]
@@ -18,10 +19,13 @@
 #     (e.g. removal of created users, services, changed log settings, ...).
 #   * This is thus destructive and should be used with care.
 #   Defaults to <tt>present</tt>.
+
+#
 #
 # === Examples
 #
 # elasticsearch::python { 'pyes':; }
+#
 #
 # === Authors
 #
@@ -61,9 +65,8 @@ define elasticsearch::python (
     }
   }
 
-  package { "python_${name}":
+  package { $name:
     ensure   => $ensure,
-    name     => $name,
     provider => $provider,
   }
 

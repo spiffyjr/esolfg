@@ -1,7 +1,5 @@
 <?php
 
-use Spiffy\Mvc\Factory\DefaultConsoleFactory;
-
 chdir(dirname(__DIR__));
 
 if (!file_exists('vendor/autoload.php')) {
@@ -10,8 +8,20 @@ if (!file_exists('vendor/autoload.php')) {
 
 include 'vendor/autoload.php';
 
-$consoleFactory = new DefaultConsoleFactory();
-$console = $consoleFactory->create(include 'config/app.php');
-$console->getApplication()->bootstrap();
+/*
+ * Get our schmexy Console Application. Internally it creates the same Application as a regular web
+ * request for bootstrapping.
+ */
+$console = new \Spiffy\Framework\ConsoleApplication(include 'config/app.php');
+
+/*
+ * Add our custom console plugin that runs the bootstrapConsole() method on each ApplicationPackage. You can
+ * remove this if you want to load commands some other way.
+ */
+$console->getApplication()->events()->plug(new \Spiffy\Framework\Plugin\BootstrapConsolePlugin($console));
+
+/*
+ * Run the Symfony console application.
+ */
 $console->run();
 

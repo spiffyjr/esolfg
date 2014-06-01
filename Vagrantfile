@@ -154,11 +154,5 @@ Vagrant.configure("2") do |config|
     config.vagrant.host = data['vagrant']['host'].gsub(":", "").intern
   end
 
-  config.hostmanager.enabled = true
-  config.hostmanager.manage_host = true
-  config.hostmanager.ignore_private_ip = false
-  config.hostmanager.include_offline = true
-  config.hostmanager.aliases = %w(local.esolfg.com)
-
 end
 

@@ -6,5 +6,5 @@
  * put them here.
  */
 return [
-    'debug' => false,
+    'debug' => true,
 ];

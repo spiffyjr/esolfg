@@ -4,24 +4,22 @@
 #
 # === Parameters
 #
-# [*ensure*]
-#   String. Controls if the managed resources shall be <tt>present</tt> or
-#   <tt>absent</tt>. If set to <tt>absent</tt>:
-#   * The managed software packages are being uninstalled.
-#   * Any traces of the packages will be purged as good as possible. This may
-#     include existing configuration files. The exact behavior is provider
-#     dependent. Q.v.:
-#     * Puppet type reference: {package, "purgeable"}[http://j.mp/xbxmNP]
-#     * {Puppet's package provider source code}[http://j.mp/wtVCaL]
-#   * System modifications (if any) will be reverted as good as possible
-#     (e.g. removal of created users, services, changed log settings, ...).
-#   * This is thus destructive and should be used with care.
-#   Defaults to <tt>present</tt>.
-#
 # [*file*]
 #   File path of the template ( json file )
 #   Value type is string
 #   Default value: undef
+#   This variable is optional
+#
+# [*replace*]
+#   Set to 'true' if you intend to replace the existing template
+#   Value type is boolean
+#   Default value: false
+#   This variable is optional
+#
+# [*delete*]
+#   Set to 'true' if you intend to delete the existing template
+#   Value type is boolean
+#   Default value: false
 #   This variable is optional
 #
 # [*host*]
@@ -61,7 +59,7 @@ define elasticsearch::template(
   Exec {
     path      => [ '/bin', '/usr/bin', '/usr/local/bin' ],
     cwd       => '/',
-    tries     => 6,
+    tries     => 3,
     try_sleep => 10
   }
 
@@ -98,18 +96,17 @@ define elasticsearch::template(
   if ($ensure == 'present') {
 
     # place the template file
-    file { "${elasticsearch::configdir}/templates_import/elasticsearch-template-${name}.json":
+    file { "${elasticsearch::confdir}/templates_import/elasticsearch-template-${name}.json":
       ensure  => 'present',
       source  => $file,
       notify  => Exec[ "delete_template_${name}" ],
-      require => Exec[ 'mkdir_templates_elasticsearch' ],
+      require => Exec[ 'mkdir_templates' ],
     }
 
     exec { "insert_template_${name}":
-      command     => "curl -sL -w \"%{http_code}\\n\" -XPUT ${es_url} -d @${elasticsearch::configdir}/templates_import/elasticsearch-template-${name}.json -o /dev/null | egrep \"(200|201)\" > /dev/null",
+      command     => "curl -s -XPUT ${es_url} -d @${elasticsearch::confdir}/templates_import/elasticsearch-template-${name}.json",
       unless      => "test $(curl -s '${es_url}?pretty=true' | wc -l) -gt 1",
-      refreshonly => true,
-      loglevel    => 'debug'
+      refreshonly => true
     }
 
   }

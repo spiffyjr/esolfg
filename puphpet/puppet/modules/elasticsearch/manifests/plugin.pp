@@ -50,12 +50,9 @@ define elasticsearch::plugin(
     $url         = ''
 ) {
 
-  include elasticsearch
-
   Exec {
     path => [ '/bin', '/usr/bin', '/usr/local/bin' ],
     cwd  => '/',
-    user => $elasticsearch::elasticsearch_user,
   }
 
   $notify_service = $elasticsearch::restart_on_change ? {
@@ -85,7 +82,7 @@ define elasticsearch::plugin(
         creates  => "${elasticsearch::plugindir}/${module_dir}",
         returns  => $exec_rets,
         notify   => $notify_service,
-        require  => File[$elasticsearch::plugindir]
+        require  => Class['elasticsearch::package']
       }
     }
     default: {

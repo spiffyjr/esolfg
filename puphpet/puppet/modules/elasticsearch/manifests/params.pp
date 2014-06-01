@@ -43,82 +43,42 @@ class elasticsearch::params {
   # restart on configuration change?
   $restart_on_change = true
 
+  # Package dir. Temporary place to download the package to for installation
+  $package_dir = '/var/lib/elasticsearch'
+
+  # User and Group for the files and user to run the service as.
+  $elasticsearch_user  = 'elasticsearch'
+  $elasticsearch_group = 'elasticsearch'
+
   # Purge configuration directory
-  $purge_configdir = false
+  $purge_confdir = true
+
+  ## init service provider
+
+  # configuration directory
+  $confdir = '/etc/elasticsearch'
+
+  # plugins directory
+  $plugindir = '/usr/share/elasticsearch/plugins'
+
+  # plugins helper binary
+  $plugintool = '/usr/share/elasticsearch/bin/plugin'
+
+  # Download tool
+  $dlcmd = 'wget -O'
 
   $purge_package_dir = false
 
-  # package download timeout
-  $package_dl_timeout = 600 # 300 seconds is default of puppet
-
-  $default_logging_level = 'INFO'
-
-  $logging_defaults = {
-    'action'                 => 'DEBUG',
-    'com.amazonaws'          => 'WARN',
-    'index.search.slowlog'   => 'TRACE, index_search_slow_log_file',
-    'index.indexing.slowlog' => 'TRACE, index_indexing_slow_log_file'
-  }
-
   #### Internal module values
-
-  # User and Group for the files and user to run the service as.
-  case $::kernel {
-    'Linux': {
-      $elasticsearch_user  = 'elasticsearch'
-      $elasticsearch_group = 'elasticsearch'
-    }
-    'Darwin': {
-      $elasticsearch_user  = 'elasticsearch'
-      $elasticsearch_group = 'elasticsearch'
-    }
-    default: {
-      fail("\"${module_name}\" provides no user/group default value
-           for \"${::kernel}\"")
-    }
-  }
-
-  # Download tool
-
-  case $::kernel {
-    'Linux': {
-      $download_tool = 'wget -O'
-    }
-    'Darwin': {
-      $download_tool = 'curl -o'
-    }
-    default: {
-      fail("\"${module_name}\" provides no download tool default value
-           for \"${::kernel}\"")
-    }
-  }
-
-  # Different path definitions
-  case $::kernel {
-    'Linux': {
-      $configdir   = '/etc/elasticsearch'
-      $package_dir = '/opt/elasticsearch/swdl'
-      $installpath = '/opt/elasticsearch'
-      $plugindir   = '/usr/share/elasticsearch/plugins'
-      $plugintool  = '/usr/share/elasticsearch/bin/plugin'
-    }
-    default: {
-      fail("\"${module_name}\" provides no config directory default value
-           for \"${::kernel}\"")
-    }
-  }
 
   # packages
   case $::operatingsystem {
-    'RedHat', 'CentOS', 'Fedora', 'Scientific', 'Amazon', 'OracleLinux', 'SLC': {
+    'RedHat', 'CentOS', 'Fedora', 'Scientific', 'Amazon', 'OracleLinux': {
       # main application
       $package = [ 'elasticsearch' ]
     }
     'Debian', 'Ubuntu': {
       # main application
-      $package = [ 'elasticsearch' ]
-    }
-    'OpenSuSE': {
       $package = [ 'elasticsearch' ]
     }
     default: {
@@ -129,7 +89,7 @@ class elasticsearch::params {
 
   # service parameters
   case $::operatingsystem {
-    'RedHat', 'CentOS', 'Fedora', 'Scientific', 'Amazon', 'OracleLinux', 'SLC': {
+    'RedHat', 'CentOS', 'Fedora', 'Scientific', 'Amazon', 'OracleLinux': {
       $service_name       = 'elasticsearch'
       $service_hasrestart = true
       $service_hasstatus  = true
@@ -152,14 +112,6 @@ class elasticsearch::params {
       $service_pattern    = $service_name
       $service_providers  = [ 'launchd' ]
       $defaults_location  = false
-    }
-    'OpenSuSE': {
-      $service_name       = 'elasticsearch'
-      $service_hasrestart = true
-      $service_hasstatus  = true
-      $service_pattern    = $service_name
-      $service_providers  = 'systemd'
-      $defaults_location  = '/etc/sysconfig'
     }
     default: {
       fail("\"${module_name}\" provides no service parameters

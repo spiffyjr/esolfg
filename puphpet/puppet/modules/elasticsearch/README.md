@@ -1,18 +1,12 @@
 # puppet-elasticsearch
 
-A Puppet module for managing [elasticsearch nodes](http://www.elasticsearch.org/).
+A puppet module for managing elasticsearch nodes
+
+http://www.elasticsearch.org/
 
 [![Build Status](https://travis-ci.org/elasticsearch/puppet-elasticsearch.png?branch=master)](https://travis-ci.org/elasticsearch/puppet-elasticsearch)
 
-## Requirements
-
-* Puppet 2.7.x or better.
-* The [stdlib](https://forge.puppetlabs.com/puppetlabs/stdlib) Puppet library.
-
-Optional:
-* The [apt](http://forge.puppetlabs.com/puppetlabs/apt) Puppet library when using repo management on Debian/Ubuntu.
-
-## Usage examples
+## Usage
 
 Installation, make sure service is running and will be started at boot time:
 
@@ -120,7 +114,7 @@ You can write the dotted key naming:
 
 ### Add a new template
 
-This will install and/or replace the template in Elasticsearch
+This will install and/or replace the template in Elasticearch
 
      elasticsearch::template { 'templatename':
        file => 'puppet:///path/to/template.json'
@@ -155,7 +149,7 @@ Install a variety of [clients/bindings](http://www.elasticsearch.org/guide/clien
 
 ## Plugins
 
-Install [a variety of plugins](http://www.elasticsearch.org/guide/plugins/):
+Install [a variety of plugins](http://www.elasticsearch.org/guide/clients/):
 
 ### From official repository:
 
@@ -170,41 +164,36 @@ Install [a variety of plugins](http://www.elasticsearch.org/guide/plugins/):
        url        => 'https://oss-es-plugins.s3.amazonaws.com/elasticsearch-jetty/elasticsearch-jetty-0.90.0.zip'
      }
 
-## Java Install
+## Java install
 
-Most sites will manage Java separately; however, this module can attempt to install Java as well.
+For those that have no separate module for installation of java:
 
      class { 'elasticsearch':
        java_install => true
      }
 
-Specify a particular Java package (version) to be installed:
+If you want a specific java package/version:
 
      class { 'elasticsearch':
        java_install => true,
        java_package => 'packagename'
      }
 
-## Repository management
+## Service providers
 
-Most sites will manage repositories separately; however, this module can manage the repository for you.
-
-    class { 'elasticsearch':
-      manage_repo  => true,
-      repo_version => '1.0',
-    }
-
-Note: When using this on Debian/Ubuntu, you will need to add the [Puppetlabs/apt](http://forge.puppetlabs.com/puppetlabs/apt) module to your modules.
-
-## Service Management
-
-Currently only the basic SysV-style [init](https://en.wikipedia.org/wiki/Init) service provider is supported, but other systems could be implemented as necessary (pull requests welcome).
+Currently only the 'init' service provider is supported but others can be implemented quite easy.
 
 ### init
 
-#### Defaults File
+#### Defaults file
 
-The *defaults* file (`/etc/defaults/elasticsearch` or `/etc/sysconfig/elasticsearch`) for the Elasticsearch service can be populated as necessary. This can either be a static file resource or a simple key value-style  [hash](http://docs.puppetlabs.com/puppet/latest/reference/lang_datatypes.html#hashes) object, the latter being particularly well-suited to pulling out of a data source such as Hiera.
+You can populate the defaults file ( /etc/defaults/elasticsearch or /etc/sysconfig/elasticsearch )
+
+##### hash representation
+
+     class { 'elasticsearch':
+       init_defaults => { 'ES_USER' => 'elasticsearch', 'ES_GROUP' => 'elasticsearch' }
+     }
 
 ##### file source
 
@@ -212,17 +201,3 @@ The *defaults* file (`/etc/defaults/elasticsearch` or `/etc/sysconfig/elasticsea
        init_defaults_file => 'puppet:///path/to/defaults'
      }
 
-##### hash representation
-
-     $config_hash = {
-       'ES_USER' => 'elasticsearch',
-       'ES_GROUP' => 'elasticsearch',
-     }
-
-     class { 'elasticsearch':
-       init_defaults => $config_hash
-     }
-
-## Support
-
-Need help? Join us in [#elasticsearch](https://webchat.freenode.net?channels=%23elasticsearch) on Freenode IRC or subscribe to the [elasticsearch@googlegroups.com](https://groups.google.com/forum/#!forum/elasticsearch) mailing list.

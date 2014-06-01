@@ -4,17 +4,11 @@ vagrantfile-local:
         box: puphpet/ubuntu1404-x64
         box_url: puphpet/ubuntu1404-x64
         hostname: null
-        memory: '510'
+        memory: '512'
         chosen_provider: vmware_workstation
         network:
             private_network: 192.168.57.101
-            forwarded_port:
-                SqKLHyFl4YIA:
-                    host: '8080'
-                    guest: '80'
-                CqRWGIHj3lA5:
-                    host: '1080'
-                    guest: '1080'
+            forwarded_port: {  }
         provider:
             virtualbox:
                 modifyvm:
@@ -23,6 +17,8 @@ vagrantfile-local:
                     VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root: 1
             vmware:
                 numvcpus: 1
+            parallels:
+                cpus: 1
         provision:
             puppet:
                 manifests_path: puphpet/puppet
@@ -33,10 +29,10 @@ vagrantfile-local:
                     - '--hiera_config /vagrant/puphpet/puppet/hiera.yaml'
                     - '--parser future'
         synced_folder:
-            meDahJBabeSW:
+            PAilsr7uiCca:
                 source: ./
                 target: /var/www
-                nfs: 'true'
+                nfs: 'false'
         usable_port_range: 2200..2250
     ssh:
         host: null
@@ -57,7 +53,7 @@ server:
             bash_aliases: null
     _prevent_empty: ''
 mailcatcher:
-    install: '1'
+    install: 0
     settings:
         smtp_ip: 0.0.0.0
         smtp_port: 1025
@@ -65,6 +61,9 @@ mailcatcher:
         http_port: '1080'
         mailcatcher_path: /usr/local/bin
         log_path: /var/log/mailcatcher/mailcatcher.log
+firewall:
+    install: '1'
+    rules: null
 apache:
     install: 0
     settings:
@@ -78,44 +77,56 @@ apache:
         - php
         - rewrite
     vhosts:
-        wx2SOmyZZg3M:
-            servername: local.esolfg.com
-            docroot: /var/www/public
+        CfPyWf8PMn8j:
+            servername: awesome.dev
+            serveraliases:
+                - www.awesome.dev
+            docroot: /var/www/awesome
             port: '80'
+            setenv:
+                - 'APP_ENV dev'
             override:
                 - All
             options:
                 - Indexes
                 - FollowSymLinks
+                - MultiViews
+            custom_fragment: ''
+            ssl_cert: ''
+            ssl_key: ''
+            ssl_chain: ''
+            ssl_certs_dir: ''
     mod_pagespeed: 0
     mod_spdy: 0
 nginx:
     install: '1'
     vhosts:
-        8Wczk3fFkjUU:
+        4KCT2BfRhusH:
             server_name: local.esolfg.com
             www_root: /var/www/public
             listen_port: '80'
             index_files:
                 - index.php
-hhvm:
-    install: '0'
-    nightly: '1'
-    settings:
-        host: 127.0.0.1
-        port: '9000'
+            ssl: '1'
+            ssl_cert: ''
+            ssl_key: ''
+            spdy: '1'
 php:
     install: '1'
     version: '55'
     composer: '1'
+    composer_home: ''
     modules:
         php:
             - cli
+            - intl
+            - mcrypt
         pear: {  }
         pecl: {  }
     ini:
         display_errors: On
         error_reporting: '-1'
+        session.save_path: /var/lib/php/session
     timezone: UTC
 xdebug:
     install: '1'
@@ -133,10 +144,9 @@ drush:
 mysql:
     install: 0
     root_password: '123'
-    phpmyadmin: 0
     adminer: 0
     databases:
-        M0weSk7x34y9:
+        u25zWqp86Y10:
             grant:
                 - ALL
             name: dbname
@@ -156,7 +166,6 @@ postgresql:
 mariadb:
     install: 0
     root_password: '123'
-    phpmyadmin: 0
     adminer: 0
     databases: {  }
     version: '10.0'

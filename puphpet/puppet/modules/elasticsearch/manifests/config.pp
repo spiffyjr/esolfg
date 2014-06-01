@@ -43,14 +43,14 @@ class elasticsearch::config {
       false => undef,
     }
 
-    file { $elasticsearch::configdir:
+    file { $elasticsearch::confdir:
       ensure => directory,
       mode   => '0644',
-      purge  => $elasticsearch::purge_configdir,
-      force  => $elasticsearch::purge_configdir
+      purge  => $elasticsearch::purge_confdir,
+      force  => $elasticsearch::purge_confdir
     }
 
-    file { "${elasticsearch::configdir}/elasticsearch.yml":
+    file { "${elasticsearch::confdir}/elasticsearch.yml":
       ensure  => file,
       content => template("${module_name}/etc/elasticsearch/elasticsearch.yml.erb"),
       mode    => '0644',
@@ -58,44 +58,14 @@ class elasticsearch::config {
     }
 
     exec { 'mkdir_templates_elasticsearch':
-      command => "mkdir -p ${elasticsearch::configdir}/templates_import",
-      creates => "${elasticsearch::configdir}/templates_import"
+      command => "mkdir -p ${elasticsearch::confdir}/templates_import",
+      creates => "${elasticsearch::confdir}/templates_import"
     }
 
-    file { "${elasticsearch::configdir}/templates_import":
+    file { "${elasticsearch::confdir}/templates_import":
       ensure  => 'directory',
       mode    => '0644',
       require => Exec['mkdir_templates_elasticsearch']
-    }
-
-    if ( $elasticsearch::logging_file != undef ) {
-      # Use the file provided
-      $logging_source  = $elasticsearch::logging_file
-      $logging_content = undef
-    } else {
-      # use our template, merge the defaults with custom logging
-
-      if(is_hash($elasticsearch::logging_config)) {
-        $logging_hash = merge($elasticsearch::params::logging_defaults, $elasticsearch::logging_config)
-      } else {
-        $logging_hash = $elasticsearch::params::logging_defaults
-      }
-
-      $logging_content = template("${module_name}/etc/elasticsearch/logging.yml.erb")
-      $logging_source  = undef
-    }
-
-    file { "${elasticsearch::configdir}/logging.yml":
-      ensure  => file,
-      content => $logging_content,
-      source  => $logging_source,
-      mode    => '0644',
-      notify  => $notify_service
-    }
-
-    file { $elasticsearch::plugindir:
-      ensure => 'directory',
-      mode   => '0644'
     }
 
     if ( $elasticsearch::datadir != undef ) {
@@ -109,7 +79,7 @@ class elasticsearch::config {
 
   } elsif ( $elasticsearch::ensure == 'absent' ) {
 
-    file { $elasticsearch::configdir:
+    file { $elasticsearch::confdir:
       ensure  => 'absent',
       recurse => true,
       force   => true

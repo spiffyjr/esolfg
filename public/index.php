@@ -6,6 +6,13 @@
 chdir(dirname(__DIR__));
 
 /*
+ * If we're using the built-in webserver and we are accessing a static file return.
+ */
+if (php_sapi_name() === 'cli-server' && is_file(__DIR__ . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH))) {
+    return false;
+}
+
+/*
  * Composer is a slow version of $deity for PHP. No, really.
  */
 if (!file_exists('vendor/autoload.php')) {
@@ -36,10 +43,10 @@ $app
      * from each and the event life-cycle can be short-circuited at anytime by assigning a Response to the
      * ApplicationEvent.
      */
-    ->run()
+    ->run();
 
     /*
      * The return result from run() is a Response object which does nothing on its own. In order to
      * display the content, set headers/cookies, etc. we need to send() it.
      */
-    ->send();
+    //->send();

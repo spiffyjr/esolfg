@@ -33,14 +33,3 @@ vagrant up
 ```
 
 Afterwards, point your browser to http://localhost (php server) or http://localhost:8080 (vagrant).
-
-## Generating assets
-
-The page will appear with no styling until you dump the assets using assetic.
-
-```sh
-cd spiffy-application
-php bin/console.php assetic:write
-```
-
-Now refresh the page!

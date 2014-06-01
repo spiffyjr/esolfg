@@ -31,7 +31,6 @@ return [
      * via the environment key above).
      */
     'packages' => [
-        'Spiffy\AsseticPackage',
         'Application'
     ],
 ];

@@ -5,5 +5,5 @@
 /public/*
 !/public/index.php
 composer.lock
-app/config/env.config.php
-app/config/override/*.config.php
+config/env.config.php
+config/override/*.config.php

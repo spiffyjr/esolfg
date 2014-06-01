@@ -1,21 +1,45 @@
 <?php
 
-use Spiffy\Mvc\Factory\DefaultApplicationFactory;
-
+/*
+ * This sets the root directory to the application root so we can reference files using their relative paths.
+ */
 chdir(dirname(__DIR__));
 
+/*
+ * Composer is a slow version of $deity for PHP. No, really.
+ */
 if (!file_exists('vendor/autoload.php')) {
     throw new \RuntimeException('Failed to load dependencies: did you run `composer install`');
 }
 
+/*
+ * Composer also handles auto-loading. Did I mention it's $deity?
+ */
 include 'vendor/autoload.php';
 
-$mvcFactory = new DefaultApplicationFactory(include 'app/config/app.config.php');
-$mvc = $mvcFactory->createService();
-$mvc->run();
+/*
+ * The big daddy. Does all the things.
+ */
+$app = new \Spiffy\Framework\Application(include 'config/app.php');
+$app
+    /*
+     * Bootstrap the application. Everything here is handled by \Spiffy\Framework\Plugin\BootstrapPlugin.
+     * This includes creating the package manager and loading packages as well as creating
+     * required services like the dispatcher, router, request and request.
+     */
+    ->bootstrap()
 
-echo '<pre>';
-echo PHP_EOL;
-printf('%2.2fms', ((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'])) * 1000);
-echo PHP_EOL;
-echo '</pre>';
+    /*
+     * Run the application's event life-cycle.
+     *
+     * route -> dispatch -> render -> respond. All of those events can have error events that are generated
+     * from each and the event life-cycle can be short-circuited at anytime by assigning a Response to the
+     * ApplicationEvent.
+     */
+    ->run()
+
+    /*
+     * The return result from run() is a Response object which does nothing on its own. In order to
+     * display the content, set headers/cookies, etc. we need to send() it.
+     */
+    ->send();

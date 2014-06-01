@@ -8,6 +8,9 @@ class IndexAction extends AbstractAction
 {
     public function __invoke($id = null)
     {
-        return ['foo' => 'bar'];
+        return [
+            'foo' => 'bar',
+            'time' => microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],
+        ];
     }
 }

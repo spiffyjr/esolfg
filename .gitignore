@@ -2,7 +2,6 @@
 /.vagrant
 /www.pid
 /vendor
-/public/*
 !/public/index.php
 composer.lock
 config/env.config.php

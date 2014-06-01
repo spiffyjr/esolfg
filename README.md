@@ -32,11 +32,15 @@ cd spiffy-application
 vagrant up
 ```
 
-Once your environment is running you'll need to generate the assets.
+Afterwards, point your browser to http://localhost (php server) or http://localhost:8080 (vagrant).
+
+## Generating assets
+
+The page will appear with no styling until you dump the assets using assetic.
 
 ```sh
 cd spiffy-application
 php bin/console.php assetic:write
 ```
 
-Afterwards, point your browser to http://localhost (php server) or http://localhost:8080 (vagrant).
+Now refresh the page!

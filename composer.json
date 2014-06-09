@@ -12,6 +12,7 @@
         "php": ">=5.4",
 
         "doctrine/dbal": "~2.5@beta",
+        "doctrine/orm": "~2.5@dev",
 
         "spiffy/spiffy-assetic": "dev-develop as 1.0",
         "spiffy/spiffy-assetic-package": "~1.0-dev",

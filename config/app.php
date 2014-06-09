@@ -31,6 +31,10 @@ return [
      * via the environment key above).
      */
     'packages' => [
+        'Spiffy\AsseticPackage',
+        'Spiffy\DoctrinePackage',
+        'Spiffy\DoctrineORMPackage',
+        'Api',
         'Application'
     ],
 ];

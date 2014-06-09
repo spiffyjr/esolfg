@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'home' => ['/{id?:\d+}', 'home']
+    'home.index' => ['/', 'Application\Home\IndexAction', ['methods' => ['get']]],
 ];

@@ -1,0 +1,11 @@
+{
+    "name": "esolfg",
+    "version": "1.0.0",
+    "ignore": [],
+    "dependencies": {
+        "angular": "latest",
+        "angular-route": "latest",
+        "bootstrap": "latest"
+    },
+    "devDependencies": {}
+}

@@ -22,7 +22,7 @@ You can run SpiffyApplication using the built-in PHP web server.
 
 ```sh
 cd spiffy-application/public
-php -S 127.0.0.1:80 index.php
+php -S 127.0.0.1:80
 ```
 
 It also comes with a Vagrant/puppet configuration.

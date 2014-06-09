@@ -25,8 +25,8 @@ Vagrant.configure("2") do |config|
 
   data['vm']['synced_folder'].each do |i, folder|
     if folder['source'] != '' && folder['target'] != ''
-      nfs = (folder['nfs'] == "true") ? "nfs" : nil
-      if nfs == "nfs"
+      nfs = (folder['nfs'] == "true") ? "smb" : nil
+      if nfs == "smb"
         config.vm.synced_folder "#{folder['source']}", "#{folder['target']}", id: "#{i}", type: nfs
       else
         config.vm.synced_folder "#{folder['source']}", "#{folder['target']}", id: "#{i}", type: nfs,
@@ -152,6 +152,10 @@ Vagrant.configure("2") do |config|
   end
   if !data['vagrant']['host'].nil?
     config.vagrant.host = data['vagrant']['host'].gsub(":", "").intern
+  end
+
+  if Vagrant.has_plugin?("vagrant-hostmanager")
+      config.hostmanager.aliases = %w(local.esolfg.com)
   end
 
 end
